@@ -70,8 +70,10 @@ def classify_song(song: Song, profile: Dict[str, object]) -> str:
     hype_keywords = ["rock", "punk", "party"]
     chill_keywords = ["lofi", "ambient", "sleep"]
 
+    title_lower = str(title).lower()
     genre_contains_hype_keyword = any(k in genre for k in hype_keywords)
-    title_contains_chill_keyword = any(k in title for k in chill_keywords)
+    title_contains_chill_keyword = any(
+        k in title_lower for k in chill_keywords)
 
     is_low_energy = energy <= chill_max_energy
     matches_favorite_genre = genre == favorite_genre
@@ -165,14 +167,15 @@ def search_songs(
     field: str = "artist",
 ) -> List[Song]:
     """Return songs matching the query on a given field."""
-    q = query.lower().strip()
-    if not q:
+    if not query:
         return songs
 
+    q = query.lower().strip()
     filtered: List[Song] = []
 
     for song in songs:
         value = str(song.get(field, "")).lower()
+        # Match the query anywhere in the selected field, ignoring case.
         if value and q in value:
             filtered.append(song)
 
